@@ -48,7 +48,7 @@ void loop() {
 
     switch (data) {
       case 'a':
-        stepperX.move(steps);
+        stepperX.move(6400);
         stepperX.runToPosition();
         break;
       case 's':

@@ -15,7 +15,8 @@ joystick = pygame.joystick.Joystick(0)
 joystick.init()
 
 # Set up the serial connection
-ser = serial.Serial('COM5', 115200)  # Replace 'COM5' with the appropriate port for your Arduino
+ser1 = serial.Serial('COM5', 115200)  # Replace 'COM5' with the appropriate port for your Arduino 
+ser2 = serial.Serial('COM9', 115200)  # Replace 'COM5' with the appropriate port for your Arduino 
 
 def map_value(value, in_min, in_max, out_min, out_max):
     # Map a value from one range to another range
@@ -56,12 +57,32 @@ def main():
         right_x_mapped = apply_deadzone(right_x_mapped, deadzone, 128)
         right_y_mapped = apply_deadzone(right_y_mapped, deadzone, 128)
 
-        # Construct the data string to send to Arduino
-        data_to_send = f"{left_x_mapped},{left_y_mapped},{right_y_mapped}\n"
+        #gets the state of the right trigger
+        rightTrigStatus = joystick.get_button(10)
 
-        # Send data to Arduino over the serial port
-        ser.write(data_to_send.encode())
-        print(data_to_send)
+        #gets the state of the horizontal D-PAD buttons
+        if joystick.get_button(14) == True: #move AX4 positive
+            xDpadStatus = 1
+        elif joystick.get_button(13) == True: #move AX4 negative
+            xDpadStatus = 2
+        else: #keep AX4 in its current position
+            xDpadStatus = 0
+        
+        #gets the state of the vertical D-PAD buttons
+        if joystick.get_button(11) == True: #move AX5 positive
+            yDpadStatus = 1
+        elif joystick.get_button(12) == True: #move AX5 negative
+            yDpadStatus = 2
+        else: #keep AX4 in its current position
+            yDpadStatus = 0
+
+        # Construct the data string to send to Arduino
+        data_to_send1 = f"{left_x_mapped},{left_y_mapped},{right_y_mapped}\n" #i commented this out to test the jaw motor
+        data_to_send2 = f"{rightTrigStatus},{xDpadStatus},{yDpadStatus}\n"
+        # Send data to Arduino over the serial port 
+        ser1.write(data_to_send1.encode())
+        ser2.write(data_to_send2.encode())
+        print(data_to_send1 + data_to_send2)
 
 if __name__ == "__main__":
     main()
